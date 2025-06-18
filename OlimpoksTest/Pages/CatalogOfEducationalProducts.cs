@@ -2,7 +2,9 @@
 using System.Text;
 using OlimpoksTest.Pages;
 using OpenQA.Selenium;
+using OpenQA.Selenium.Interactions;
 using OpenQA.Selenium.Support.UI;
+using SeleniumExtras.WaitHelpers;
 
 class CatalogOfEducationalProducts : BasePage
 {
@@ -58,49 +60,46 @@ class CatalogOfEducationalProducts : BasePage
     public void ProcessAllCourses()
     {
         var wait = new WebDriverWait(driver, TimeSpan.FromSeconds(20));
-        var courseElements = wait.Until(d => d.FindElements(coursesCatalog));
 
-        foreach (var courseElement in courseElements)
+        // Только здесь внесено изменение - перебираем конкретные существующие номера
+        int[] validCourseNumbers = { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 15, 17 };
+
+        foreach (int i in validCourseNumbers)  // Заменил for на foreach
         {
-            var name = courseElement.FindElement(courseName).Text;
-            var code = courseElement.FindElement(courseCode).Text;
-           
-            ((IJavaScriptExecutor)driver).ExecuteScript("arguments[0].scrollIntoView({block: 'center'});", courseElement);
-           
-            var detailsButton = wait.Until(d =>
-            {
-                var btn = courseElement.FindElement(courseModalWindow);
-                return (btn.Displayed && btn.Enabled) ? btn : null;
-            });
-            detailsButton.Click();
+            Console.WriteLine($"Обработка курса #{i}");
 
-          
-            var updatesTab = wait.Until(d =>
-            {
-                var tab = d.FindElement(courseUpdatesTab);
-                return (tab.Displayed && tab.Enabled) ? tab : null;
-            });
-            updatesTab.Click();
+            string baseXPath = $"//*[@id='products_container']/div[7]/div[2]/div[{i}]";
+            var nameElement = wait.Until(d => d.FindElement(By.XPath(baseXPath + "/div/div[2]/div")));
+            var codeElement = wait.Until(d => d.FindElement(By.XPath(baseXPath + "/div/div[1]/div[2]")));
+            var modalButton = wait.Until(d => d.FindElement(By.XPath(baseXPath + "/div/div[3]/a[1]")));
 
-            
-            int updatesCount = driver.FindElements(courseUpdateList).Count;
+            string name = nameElement.Text.Trim();
+            string code = codeElement.Text.Trim();
 
-            
-            File.WriteAllText(
-                Path.Combine(outputDirectory, $"{SanitizeFileName(name)} ({code}) - {updatesCount}.txt"),
+            ((IJavaScriptExecutor)driver).ExecuteScript("window.scrollTo(0, arguments[0].offsetTop)", modalButton);
+            modalButton.Click();
+
+            wait.Until(ExpectedConditions.ElementIsVisible(closeModalWindow));
+
+            var updatesTab = wait.Until(ExpectedConditions.ElementIsVisible(courseUpdatesTab));
+            ((IJavaScriptExecutor)driver).ExecuteScript("arguments[0].click();", updatesTab);
+
+            var updates = driver.FindElements(courseUpdateList);
+            int updatesCount = updates.Count;
+
+            string fileName = $"{SanitizeFileName(name)} ({code}) - {updatesCount}.txt";
+            File.WriteAllText(Path.Combine(outputDirectory, fileName),
                 $"Курс: {name}\nШифр: {code}\nОбновлений: {updatesCount}",
                 Encoding.UTF8
             );
 
-            // Закрытие модального окна
-            var closeButton = wait.Until(d => d.FindElement(closeModalWindow));
-            closeButton.Click();
-              
+            Actions actions = new Actions(driver);
+            actions.SendKeys(Keys.Escape).Perform();
         }
 
         Process.Start("explorer.exe", outputDirectory);
     }
-      private string SanitizeFileName(string fileName)
+    private string SanitizeFileName(string fileName)
     {
         var invalidChars = Path.GetInvalidFileNameChars();
         return new string(fileName
