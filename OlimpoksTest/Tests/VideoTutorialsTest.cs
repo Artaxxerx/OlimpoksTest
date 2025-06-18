@@ -25,6 +25,7 @@ namespace OlimpoksTest.Tests
             catalogOfEducationProd
                 .ClickWorkersInput()
                 .ClickLaborProtectionInput()
+                .PopupClose()
                 .OpenAListOfCourses()
                 .ProcessAllCourses();
         }
