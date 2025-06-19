@@ -1,10 +1,12 @@
-﻿using System.Diagnostics;
+﻿using System.Collections.Generic;
+using System.Diagnostics;
 using System.Text;
 using OlimpoksTest.Pages;
 using OpenQA.Selenium;
 using OpenQA.Selenium.Interactions;
 using OpenQA.Selenium.Support.UI;
 using SeleniumExtras.WaitHelpers;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 class CatalogOfEducationalProducts : BasePage
 {
@@ -15,6 +17,11 @@ class CatalogOfEducationalProducts : BasePage
     private By courseUpdateList = By.XPath("//*[@class='course-update-card']");
     private By popupClose = By.ClassName("telegram-popup__close");
     private By closeModalWindow = By.XPath("//*[@id=\"course-detail\"]/div/div/div[1]/button");
+    private By regulatoryDocumentation = By.XPath("//*[@id=\"MATERIAL_TYPE\"]/div/div/div[1]/label/input");
+    private By oneCourse = By.XPath("//*[@id=\"products_container\"]/div[2]/div[1]/div[1]/div[5]/button");
+    private By coursesListOfMinimalNumber = By.XPath("//*[@id=\"products_container\"]/div[2]/div[2]/div[54]");
+    private By oneHundredTwelveCourses = By.XPath("//*[@id=\"products_container\"]/div[31]/div[1]/div[1]/div[5]/button");
+    private By coursesInTheListWithTheMaximumNumber = By.CssSelector("div.product-card_courses[style*='display: block'] > div.product-card_course-card-wrapper.show");
     private readonly string outputDirectory;
 
     public CatalogOfEducationalProducts(IWebDriver driver) : base(driver)
@@ -62,7 +69,6 @@ class CatalogOfEducationalProducts : BasePage
 
         foreach (int i in validCourseNumbers) 
         {
-            Console.WriteLine($"Обработка курса #{i}");
 
             string baseXPath = $"//*[@id='products_container']/div[7]/div[2]/div[{i}]";
             var nameElement = wait.Until(d => d.FindElement(By.XPath(baseXPath + "/div/div[2]/div")));
@@ -103,5 +109,36 @@ class CatalogOfEducationalProducts : BasePage
             .ToArray())
             .Replace(" ", "_");
     }
-    public CatalogOfEducationalProducts 
+    public CatalogOfEducationalProducts ClickRegulatoryDocumentation()
+    {
+        driver.FindElement(regulatoryDocumentation).Click();
+        return this;
+    }
+    public CatalogOfEducationalProducts FindProductWithMinimalNumberOfCourses()
+    {
+        driver.FindElement(oneCourse).Click();
+        return this;
+    }
+    public int CountTheMinimalNumberOfCourses()
+    {
+        var mlist = driver.FindElements(coursesListOfMinimalNumber);
+        int mlistCount = mlist.Count;
+        return mlistCount;
+    }
+    public CatalogOfEducationalProducts FindProductWithMaximumNumberOfCourses()
+    {
+        var wait = new WebDriverWait(driver, TimeSpan.FromSeconds(10));
+        IWebElement element = wait.Until(SeleniumExtras.WaitHelpers.ExpectedConditions.ElementToBeClickable(oneHundredTwelveCourses));
+        driver.FindElement(oneHundredTwelveCourses).Click();
+        return this;
+    }
+    public int CountTheMaximumNumberOfCourses()
+    {
+        Thread.Sleep(5000);
+
+        // Теперь получаем все элементы с классом show
+        var mlist = driver.FindElements(coursesInTheListWithTheMaximumNumber);
+        int mlistCount = mlist.Count;
+        return mlistCount;
+    }
 }

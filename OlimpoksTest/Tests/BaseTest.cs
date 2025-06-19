@@ -9,7 +9,7 @@ using WebDriverManager.DriverConfigs.Impl;
 
 namespace OlimpoksTest.Tests
 {
-    public class BaseTest
+    public class BaseTest : IDisposable
     {
         protected IWebDriver driver {  get; }
 
@@ -18,6 +18,12 @@ namespace OlimpoksTest.Tests
             driver = new ChromeDriver();
             driver.Manage().Window.Maximize();
             driver.Navigate().GoToUrl("https://olimpoks.ru/");
+        }
+        public void Dispose()
+        {
+            // Закрываем браузер и освобождаем ресурсы
+            driver?.Quit();
+            driver?.Dispose();
         }
 
     }

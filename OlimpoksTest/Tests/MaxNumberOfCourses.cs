@@ -7,10 +7,10 @@ using OlimpoksTest.Pages;
 
 namespace OlimpoksTest.Tests
 {
-    public class MinimalNumberOfCourses : BaseTest
+    public class MaxNumberOfCourses : BaseTest
     {
         [Fact]
-        public void TestMinimalNumberOfCourses()
+        public void TestMaxNumberOfCourses()
         {
             var mainPageTest = new MainPage(driver);
             var catalogOfEducationProd = new CatalogOfEducationalProducts(driver);
@@ -18,15 +18,13 @@ namespace OlimpoksTest.Tests
             mainPageTest
                 .ClickDecisionButton()
                 .ClickLaborProtectionButton();
+
             catalogOfEducationProd
                 .PopupClose()
-                .ClickRegulatoryDocumentation()
-                .FindProductWithMinimalNumberOfCourses();
+                .FindProductWithMaximumNumberOfCourses()
+                .CountTheMaximumNumberOfCourses();
 
-
-
-            Assert.Equal(1, catalogOfEducationProd.CountTheMinimalNumberOfCourses());
-        
+            Assert.Equal(112, catalogOfEducationProd.CountTheMaximumNumberOfCourses());
         }
     }
 }
