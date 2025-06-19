@@ -21,7 +21,7 @@ namespace OlimpoksTest.Tests
         }
         public void Dispose()
         {
-            // Закрываем браузер и освобождаем ресурсы
+            
             driver?.Quit();
             driver?.Dispose();
         }

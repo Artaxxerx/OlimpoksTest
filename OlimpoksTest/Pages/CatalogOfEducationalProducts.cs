@@ -19,9 +19,9 @@ class CatalogOfEducationalProducts : BasePage
     private By closeModalWindow = By.XPath("//*[@id=\"course-detail\"]/div/div/div[1]/button");
     private By regulatoryDocumentation = By.XPath("//*[@id=\"MATERIAL_TYPE\"]/div/div/div[1]/label/input");
     private By oneCourse = By.XPath("//*[@id=\"products_container\"]/div[2]/div[1]/div[1]/div[5]/button");
-    private By coursesListOfMinimalNumber = By.XPath("//*[@id=\"products_container\"]/div[2]/div[2]/div[54]");
+    //private By coursesListOfMinimalNumber = By.XPath("//*[@id=\"products_container\"]/div[2]/div[2]/div[54]");
     private By oneHundredTwelveCourses = By.XPath("//*[@id=\"products_container\"]/div[31]/div[1]/div[1]/div[5]/button");
-    private By coursesInTheListWithTheMaximumNumber = By.CssSelector("div.product-card_courses[style*='display: block'] > div.product-card_course-card-wrapper.show");
+    private By coursesInTheList = By.CssSelector("div.product-card_courses[style*='display: block'] > div.product-card_course-card-wrapper.show");
     private readonly string outputDirectory;
 
     public CatalogOfEducationalProducts(IWebDriver driver) : base(driver)
@@ -121,7 +121,7 @@ class CatalogOfEducationalProducts : BasePage
     }
     public int CountTheMinimalNumberOfCourses()
     {
-        var mlist = driver.FindElements(coursesListOfMinimalNumber);
+        var mlist = driver.FindElements(coursesInTheList);
         int mlistCount = mlist.Count;
         return mlistCount;
     }
@@ -134,10 +134,7 @@ class CatalogOfEducationalProducts : BasePage
     }
     public int CountTheMaximumNumberOfCourses()
     {
-        Thread.Sleep(5000);
-
-        // Теперь получаем все элементы с классом show
-        var mlist = driver.FindElements(coursesInTheListWithTheMaximumNumber);
+        var mlist = driver.FindElements(coursesInTheList);
         int mlistCount = mlist.Count;
         return mlistCount;
     }
